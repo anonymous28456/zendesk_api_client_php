@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Zendesk\API\HttpClient;
 
-class LibagerCommand extends Command
+class ConsoleCommand extends Command
 {
     /**
      * Configure the command options.
@@ -23,11 +23,11 @@ class LibagerCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('libager')
+            ->setName('console')
             ->setDescription('Test out features of the php api client.')
-            ->addArgument('subdomain', InputArgument::REQUIRED)
-            ->addArgument('username', InputArgument::REQUIRED)
-            ->addArgument('token', InputArgument::REQUIRED);
+            ->addArgument('subdomain', InputArgument::OPTIONAL)
+            ->addArgument('username', InputArgument::OPTIONAL)
+            ->addArgument('token', InputArgument::OPTIONAL);
     }
 
     /**
