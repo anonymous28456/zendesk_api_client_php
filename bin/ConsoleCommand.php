@@ -3,9 +3,9 @@
 namespace Zendesk;
 
 require 'DocMethodMatcher.php';
+require 'Shell.php';
 
 use Psy\Configuration;
-use Psy\Shell;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
