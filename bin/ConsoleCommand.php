@@ -53,9 +53,7 @@ class ConsoleCommand extends Command
             'token' => $input->getArgument('token')
         ]);
 
-        $shell->setScopeVariables(['ticket' => 'karl']);
-        $shell->setBoundObject($client);
-
+        $shell->setScopeVariables(compact('client'));
         $shell->run();
     }
 }

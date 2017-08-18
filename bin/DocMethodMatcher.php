@@ -35,7 +35,7 @@ class DocMethodMatcher extends AbstractContextAwareMatcher
             $subresourceToken = array_shift($tokens);
             if (self::tokenIs($subresourceToken, self::T_STRING)) {
                 if ($subresourceToken[1] === $input) {
-                    return $this->searchValidSubResources($object, $input);
+                    return $this->searchValidMethods($object, $input);
                 } elseif (array_key_exists($subresourceToken[1], $object->getValidSubResources())) {
                     $object = $object->{$subresourceToken[1]}();
                 } else {
@@ -45,7 +45,7 @@ class DocMethodMatcher extends AbstractContextAwareMatcher
         } while ($tokens);
 
         if ($object && !$input) {
-            return $this->searchValidSubResources($object);
+            return $this->searchValidMethods($object);
         }
 
         return [];
@@ -68,10 +68,13 @@ class DocMethodMatcher extends AbstractContextAwareMatcher
         return false;
     }
 
-    private function searchValidSubResources($object, $input = '')
+    private function searchValidMethods($object, $input = '')
     {
-        return array_reduce(
-            array_keys($object->getValidSubResources()),
+        $subresources = method_exists($object, 'getValidSubResources') ?
+            array_keys($object->getValidSubResources()): [];
+
+        $methods = array_reduce(
+            array_merge($subresources, get_class_methods($object)),
             function ($acc, $var) use ($input) {
                 if (AbstractMatcher::startsWith($input, $var)) {
                     $acc[] = "$var()";
@@ -81,5 +84,14 @@ class DocMethodMatcher extends AbstractContextAwareMatcher
             },
             []
         );
+
+        $attributes = array_filter(
+            array_keys(get_class_vars(get_class($object))),
+            function ($var) use ($input) {
+                return AbstractMatcher::startsWith($input, $var);
+            }
+        );
+
+        return array_merge($methods, $attributes);
     }
 }
