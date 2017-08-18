@@ -11,6 +11,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Zendesk\API\Exceptions\ApiResponseException;
 use Zendesk\API\HttpClient;
 
 class ConsoleCommand extends Command
@@ -45,14 +46,24 @@ class ConsoleCommand extends Command
         $config = new Configuration;
         $config->addTabCompletionMatchers([new DocMethodMatcher()]);
 
-        $shell = new Shell($config);
-
         $client = new HttpClient($input->getArgument('subdomain'));
         $client->setAuth('basic', [
             'username' => $input->getArgument('username'),
             'token' => $input->getArgument('token')
         ]);
 
+        try {
+            $data = $client->users()->me();
+            $config->setStartupMessage(
+                '<fg=green>Hi ' .
+                $data->user->name .
+                '. An instance of HttpClient using your credentials is stored on $client variable.</>'
+            );
+        } catch (ApiResponseException $e) {
+            $config->setStartupMessage('<fg=red>Invalid client credentials</>');
+        }
+
+        $shell = new Shell($config);
         $shell->setScopeVariables(compact('client'));
         $shell->run();
     }
